@@ -1,0 +1,450 @@
+/* ===== Reset e variabili ===== */
+:root {
+  --bg: #0f1419;
+  --bg-card: #1a222d;
+  --bg-input: #232d3a;
+  --text: #e6edf3;
+  --text-muted: #8b9cad;
+  --accent: #22d3ee;
+  --accent-hover: #67e8f9;
+  --accent-soft: rgba(34, 211, 238, 0.15);
+  --border: #2d3a4a;
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  --font: 'DM Sans', system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+}
+
+/* ===== Base ===== */
+html {
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.5;
+  min-height: 100vh;
+  padding-bottom: 2rem;
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ===== Header: orologio, data, striscia settimana ===== */
+.header {
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  padding: 1.25rem 1rem;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header-logo {
+  display: block;
+  max-width: 160px;
+  height: auto;
+  margin: 0 auto 1rem;
+  object-fit: contain;
+}
+
+.clock-wrapper {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.clock {
+  display: block;
+  font-size: clamp(2rem, 8vw, 3rem);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+}
+
+.date {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+.week-strip {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.25rem;
+  max-width: 100%;
+}
+
+.week-day {
+  flex: 1;
+  padding: 0.5rem 0.25rem;
+  font-family: var(--font);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  cursor: default;
+  transition: color 0.2s, background 0.2s, border-color 0.2s;
+}
+
+.week-day.current {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.week-day[aria-pressed="true"] {
+  color: var(--bg);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ===== Main ===== */
+.main {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+/* ===== Form ===== */
+.form-section {
+  margin-bottom: 2rem;
+}
+
+.form {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem;
+  box-shadow: var(--shadow);
+}
+
+.form-row {
+  margin-bottom: 1rem;
+}
+
+.form-row:last-of-type {
+  margin-bottom: 1.25rem;
+}
+
+.form label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  margin-bottom: 0.35rem;
+  color: var(--text);
+}
+
+.required {
+  color: var(--accent);
+}
+
+.form input,
+.form textarea {
+  width: 100%;
+  padding: 0.65rem 0.85rem;
+  font-family: var(--font);
+  font-size: 1rem;
+  color: var(--text);
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form input::placeholder,
+.form textarea::placeholder {
+  color: var(--text-muted);
+  opacity: 0.8;
+}
+
+.form input:focus,
+.form textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.form textarea {
+  resize: vertical;
+  min-height: 60px;
+}
+
+.hint {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* Pulsanti ===== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.25rem;
+  font-family: var(--font);
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.btn-primary {
+  width: 100%;
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.btn-primary:hover {
+  background: var(--accent-hover);
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+}
+
+.btn-icon {
+  padding: 0.5rem;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+}
+
+.btn-icon:hover {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.btn-icon:active {
+  transform: scale(0.95);
+}
+
+/* ===== Lista impegni ===== */
+.section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: var(--text);
+}
+
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.appointments-list:not(:empty) + .empty-state {
+  display: none;
+}
+
+.empty-state {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  padding: 2rem 1rem;
+}
+
+/* Gruppo per giorno ===== */
+.day-group {
+  animation: slideIn 0.35s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.day-group-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent);
+  margin-bottom: 0.6rem;
+  padding-left: 0.25rem;
+}
+
+.day-group-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  list-style: none;
+}
+
+/* Singolo impegno ===== */
+.appointment-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  animation: itemIn 0.3s ease-out;
+  transition: border-color 0.2s;
+}
+
+.appointment-item:hover {
+  border-color: rgba(34, 211, 238, 0.3);
+}
+
+.appointment-item.done {
+  opacity: 0.75;
+}
+
+.appointment-item.removing {
+  animation: itemOut 0.25s ease-in forwards;
+}
+
+@keyframes itemIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes itemOut {
+  to {
+    opacity: 0;
+    transform: translateX(-8px) scale(0.98);
+  }
+}
+
+.appointment-checkbox {
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-top: 0.15rem;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.appointment-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.appointment-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.appointment-item.done .appointment-text {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.appointment-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.appointment-time-badge {
+  background: var(--accent-soft);
+  color: var(--accent);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.appointment-notes {
+  margin-top: 0.4rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+.appointment-item.done .appointment-notes {
+  opacity: 0.85;
+}
+
+.appointment-actions {
+  flex-shrink: 0;
+}
+
+/* Icona elimina (testo accessibile) ===== */
+.btn-delete {
+  padding: 0.4rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+}
+
+.btn-delete:active {
+  transform: scale(0.95);
+}
+
+/* ===== Desktop: leggeri aggiustamenti ===== */
+@media (min-width: 480px) {
+  .header {
+    padding: 1.5rem 1.5rem;
+  }
+
+  .week-day {
+    font-size: 0.8rem;
+    padding: 0.6rem 0.35rem;
+  }
+
+  .main {
+    padding: 1.5rem;
+  }
+
+  .form {
+    padding: 1.5rem;
+  }
+}

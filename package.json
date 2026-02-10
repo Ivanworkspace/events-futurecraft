@@ -1,0 +1,8 @@
+{
+  "name": "events-futurecraft",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve .",
+    "start": "npx serve ."
+  }
+}

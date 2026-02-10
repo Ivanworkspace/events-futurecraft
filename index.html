@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Promemoria – Lista impegni</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <img src="public/logo.png" alt="Future Craft" class="header-logo" width="180" height="80">
+    <div class="clock-wrapper">
+      <time class="clock" id="clock" aria-live="polite" aria-atomic="true">--:--:--</time>
+      <p class="date" id="date" aria-live="polite">--</p>
+    </div>
+    <nav class="week-strip" aria-label="Giorni della settimana">
+      <button type="button" class="week-day" data-day="0" aria-pressed="false">Lun</button>
+      <button type="button" class="week-day" data-day="1" aria-pressed="false">Mar</button>
+      <button type="button" class="week-day" data-day="2" aria-pressed="false">Mer</button>
+      <button type="button" class="week-day" data-day="3" aria-pressed="false">Gio</button>
+      <button type="button" class="week-day" data-day="4" aria-pressed="false">Ven</button>
+      <button type="button" class="week-day" data-day="5" aria-pressed="false">Sab</button>
+      <button type="button" class="week-day" data-day="6" aria-pressed="false">Dom</button>
+    </nav>
+  </header>
+
+  <main class="main">
+    <section class="form-section" aria-labelledby="form-title">
+      <h2 id="form-title" class="sr-only">Aggiungi impegno</h2>
+      <form id="appointment-form" class="form" novalidate>
+        <div class="form-row">
+          <label for="appointment-date">Data <span class="required">*</span></label>
+          <input type="date" id="appointment-date" name="date" required aria-required="true">
+        </div>
+        <div class="form-row">
+          <label for="appointment-time">Ora (opzionale)</label>
+          <input type="time" id="appointment-time" name="time" aria-describedby="time-hint">
+          <span id="time-hint" class="hint">Facoltativo</span>
+        </div>
+        <div class="form-row">
+          <label for="appointment-text">Impegno <span class="required">*</span></label>
+          <input type="text" id="appointment-text" name="text" placeholder="Es. Dentista, riunione..." required aria-required="true" maxlength="200" autocomplete="off">
+        </div>
+        <div class="form-row">
+          <label for="appointment-notes">Note (opzionale)</label>
+          <textarea id="appointment-notes" name="notes" placeholder="Dettagli aggiuntivi..." rows="2" maxlength="500" aria-describedby="notes-hint"></textarea>
+          <span id="notes-hint" class="hint">Facoltativo</span>
+        </div>
+        <button type="submit" class="btn btn-primary" id="submit-btn" aria-label="Aggiungi impegno alla lista">Aggiungi</button>
+      </form>
+    </section>
+
+    <section class="list-section" aria-labelledby="list-title">
+      <h2 id="list-title" class="section-title">I tuoi impegni</h2>
+      <div id="appointments-list" class="appointments-list" role="list">
+        <!-- Gruppi e impegni inseriti via JS -->
+      </div>
+      <p id="empty-state" class="empty-state" role="status">
+        Nessun impegno. Aggiungi il primo dal modulo sopra.
+      </p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
