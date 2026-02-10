@@ -90,7 +90,7 @@
   }
 
   /**
-   * Restituisce l’etichetta del gruppo (Oggi, Domani, Dopodomani o nome del giorno).
+   * Restituisce l'etichetta del gruppo (Oggi, Domani, Dopodomani o nome del giorno).
    */
   function getGroupLabel(dateKey) {
     const today = toDateKey(new Date());

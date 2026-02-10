@@ -2,7 +2,7 @@
   "name": "events-futurecraft",
   "private": true,
   "scripts": {
-    "dev": "npx serve .",
-    "start": "npx serve ."
+    "dev": "npx serve public",
+    "start": "npx serve public"
   }
 }
