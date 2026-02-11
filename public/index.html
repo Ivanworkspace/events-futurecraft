@@ -11,8 +11,33 @@
   <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
+  <!-- Schermata Login (visibile solo se NON autenticato) -->
+  <div id="login-screen" class="login-screen" style="display: none;">
+    <div class="login-card">
+      <img src="/logo.png" alt="Future Craft" class="login-logo" width="160">
+      <h1 class="login-title">Accedi</h1>
+      <form id="login-form" class="login-form">
+        <div class="login-field">
+          <label for="login-email">Email</label>
+          <input type="email" id="login-email" required autocomplete="email">
+        </div>
+        <div class="login-field">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" required autocomplete="current-password">
+        </div>
+        <p id="login-error" class="login-error" style="display: none;"></p>
+        <button type="submit" class="btn btn-primary" id="login-btn">Accedi</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- App principale (visibile solo se autenticato) -->
+  <div id="app-container" style="display: none;">
   <header class="header">
-    <img src="/logo.png" alt="Future Craft" class="header-logo" width="180" height="80">
+    <div class="header-top">
+      <img src="/logo.png" alt="Future Craft" class="header-logo" width="180" height="80">
+      <button type="button" id="logout-btn" class="btn-logout" aria-label="Esci">Esci</button>
+    </div>
     <div class="clock-wrapper">
       <time class="clock" id="clock" aria-live="polite" aria-atomic="true">--:--:--</time>
       <p class="date" id="date" aria-live="polite">--</p>
@@ -64,6 +89,8 @@
       </p>
     </section>
   </main>
+  </div>
+  <!-- Fine app principale -->
 
   <!-- Firebase (compat) + Firestore + Auth -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/firebase/8.10.0/firebase-app.min.js"></script>

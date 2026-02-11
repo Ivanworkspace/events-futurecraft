@@ -374,7 +374,81 @@
   }
 
   /**
-   * Avvio: orologio, evidenziazione giorno, caricamento (Firestore o localStorage) e render.
+   * Mostra l'app (nasconde login).
+   */
+  function showApp() {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app-container').style.display = 'block';
+  }
+
+  /**
+   * Mostra il login (nasconde app).
+   */
+  function showLogin() {
+    document.getElementById('login-screen').style.display = 'flex';
+    document.getElementById('app-container').style.display = 'none';
+  }
+
+  /**
+   * Carica i dati e renderizza (dopo login).
+   */
+  function initAppData() {
+    if (useFirestore()) {
+      loadAppointmentsFromFirestore().then(function () {
+        renderList();
+      }).catch(function () {
+        loadAppointments();
+        renderList();
+      });
+    } else {
+      loadAppointments();
+      renderList();
+    }
+  }
+
+  /**
+   * Login form handler.
+   */
+  function initLoginForm() {
+    var loginForm = document.getElementById('login-form');
+    var loginError = document.getElementById('login-error');
+    var loginBtn = document.getElementById('login-btn');
+
+    loginForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = document.getElementById('login-email').value.trim();
+      var password = document.getElementById('login-password').value;
+      if (!email || !password) return;
+
+      loginError.style.display = 'none';
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Accesso...';
+
+      window.firebaseAuth.signInWithEmailAndPassword(email, password)
+        .catch(function (err) {
+          console.error('Errore login:', err);
+          loginError.textContent = 'Email o password errati. Riprova.';
+          loginError.style.display = 'block';
+          loginBtn.disabled = false;
+          loginBtn.textContent = 'Accedi';
+        });
+    });
+  }
+
+  /**
+   * Logout button handler.
+   */
+  function initLogoutBtn() {
+    var logoutBtn = document.getElementById('logout-btn');
+    logoutBtn.addEventListener('click', function () {
+      if (window.firebaseAuth) {
+        window.firebaseAuth.signOut();
+      }
+    });
+  }
+
+  /**
+   * Avvio: orologio, evidenziazione giorno, form, auth listener.
    */
   function init() {
     updateClock();
@@ -382,25 +456,25 @@
     highlightCurrentDay();
     setInterval(highlightCurrentDay, 60000);
 
-    var done = function () {
-      renderList();
-      initForm();
-    };
+    initLoginForm();
+    initLogoutBtn();
+    initForm();
 
-    if (window.firebaseReady) {
-      window.firebaseReady.then(function () {
-        if (useFirestore()) {
-          return loadAppointmentsFromFirestore().then(done);
+    // Auth state listener: mostra login o app a seconda dello stato
+    if (window.firebaseAuth) {
+      window.firebaseAuth.onAuthStateChanged(function (user) {
+        if (user) {
+          showApp();
+          initAppData();
+        } else {
+          showLogin();
         }
-        loadAppointments();
-        done();
-      }).catch(function () {
-        loadAppointments();
-        done();
       });
     } else {
+      // Fallback: se Firebase non è disponibile, usa localStorage
+      showApp();
       loadAppointments();
-      done();
+      renderList();
     }
   }
 
