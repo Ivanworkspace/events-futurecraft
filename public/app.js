@@ -67,12 +67,11 @@
   }
 
   /**
-   * Carica gli impegni da Firestore (solo per l'utente anonimo corrente).
+   * Carica gli impegni da Firestore (agenda condivisa: tutti vedono gli stessi impegni).
    */
   function loadAppointmentsFromFirestore() {
     var db = window.firebaseDb;
-    var uid = window.firebaseAuth.currentUser.uid;
-    return db.collection(FIRESTORE_COLLECTION).where('userId', '==', uid).get().then(function (snap) {
+    return db.collection(FIRESTORE_COLLECTION).get().then(function (snap) {
       appointments = snap.docs.map(function (d) {
         var data = d.data();
         return {
@@ -333,7 +332,6 @@
 
       if (useFirestore()) {
         var payload = {
-          userId: window.firebaseAuth.currentUser.uid,
           date: apt.date,
           time: apt.time,
           text: apt.text,
