@@ -1,6 +1,6 @@
 /**
  * Promemoria / Lista impegni
- * App statica: orologio, data, striscia settimana, form e lista con persistenza localStorage.
+ * Persistenza: Firestore (se disponibile) oppure localStorage.
  */
 
 (function () {
@@ -8,6 +8,7 @@
 
   const STORAGE_KEY = 'promemoria-impegni';
   const DAY_NAMES = ['Lunedì', 'Martedì', 'Mercoledì', 'Giovedì', 'Venerdì', 'Sabato', 'Domenica'];
+  const FIRESTORE_COLLECTION = 'appointments';
 
   // ----- Stato -----
   let appointments = [];
@@ -19,6 +20,10 @@
   const form = document.getElementById('appointment-form');
   const listContainer = document.getElementById('appointments-list');
   const emptyState = document.getElementById('empty-state');
+
+  function useFirestore() {
+    return !!(window.firebaseDb && window.firebaseAuth && window.firebaseAuth.currentUser);
+  }
 
   /**
    * Formatta un numero con due cifre (es. 5 -> "05").
@@ -54,7 +59,7 @@
    */
   function loadAppointments() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      var raw = localStorage.getItem(STORAGE_KEY);
       appointments = raw ? JSON.parse(raw) : [];
     } catch (e) {
       appointments = [];
@@ -62,7 +67,31 @@
   }
 
   /**
-   * Salva gli impegni in localStorage.
+   * Carica gli impegni da Firestore (solo per l'utente anonimo corrente).
+   */
+  function loadAppointmentsFromFirestore() {
+    var db = window.firebaseDb;
+    var uid = window.firebaseAuth.currentUser.uid;
+    return db.collection(FIRESTORE_COLLECTION).where('userId', '==', uid).get().then(function (snap) {
+      appointments = snap.docs.map(function (d) {
+        var data = d.data();
+        return {
+          id: d.id,
+          date: data.date,
+          time: data.time || null,
+          text: data.text,
+          notes: data.notes || null,
+          done: !!data.done
+        };
+      });
+    }).catch(function (err) {
+      console.warn('Errore caricamento Firestore, uso localStorage:', err);
+      loadAppointments();
+    });
+  }
+
+  /**
+   * Salva gli impegni in localStorage (fallback).
    */
   function saveAppointments() {
     try {
@@ -135,20 +164,27 @@
    * Rimuove un impegno dalla lista (con animazione) e aggiorna il modello.
    */
   function removeAppointment(id) {
-    const item = appointments.find(function (a) { return a.id === id; });
+    var item = appointments.find(function (a) { return a.id === id; });
     if (!item) return;
-    const el = document.querySelector('[data-appointment-id="' + id + '"]');
-    if (el) {
-      el.classList.add('removing');
-      setTimeout(function () {
-        appointments = appointments.filter(function (a) { return a.id !== id; });
-        saveAppointments();
-        renderList();
-      }, 250);
-    } else {
+    var el = document.querySelector('[data-appointment-id="' + id + '"]');
+
+    function doRemove() {
       appointments = appointments.filter(function (a) { return a.id !== id; });
-      saveAppointments();
+      if (!useFirestore()) saveAppointments();
       renderList();
+    }
+
+    if (el) el.classList.add('removing');
+
+    if (useFirestore()) {
+      window.firebaseDb.collection(FIRESTORE_COLLECTION).doc(id).delete()
+        .then(function () { setTimeout(doRemove, el ? 250 : 0); })
+        .catch(function (err) {
+          console.warn('Errore eliminazione Firestore:', err);
+          doRemove();
+        });
+    } else {
+      setTimeout(doRemove, el ? 250 : 0);
     }
   }
 
@@ -156,8 +192,21 @@
    * Toggle stato "fatto" di un impegno.
    */
   function toggleDone(id) {
-    const item = appointments.find(function (a) { return a.id === id; });
-    if (item) {
+    var item = appointments.find(function (a) { return a.id === id; });
+    if (!item) return;
+    if (useFirestore()) {
+      var newDone = !item.done;
+      window.firebaseDb.collection(FIRESTORE_COLLECTION).doc(id).update({ done: newDone })
+        .then(function () {
+          item.done = newDone;
+          renderList();
+        })
+        .catch(function (err) {
+          console.warn('Errore aggiornamento Firestore:', err);
+          item.done = newDone;
+          renderList();
+        });
+    } else {
       item.done = !item.done;
       saveAppointments();
       renderList();
@@ -257,7 +306,7 @@
    */
   function initForm() {
     function setDefaultDate() {
-      const dateInput = form.querySelector('#appointment-date');
+      var dateInput = form.querySelector('#appointment-date');
       if (!dateInput.value) {
         dateInput.value = toDateKey(new Date());
       }
@@ -265,45 +314,96 @@
     setDefaultDate();
     form.addEventListener('submit', function (e) {
       e.preventDefault();
-      const dateInput = form.querySelector('#appointment-date');
-      const timeInput = form.querySelector('#appointment-time');
-      const textInput = form.querySelector('#appointment-text');
-      const notesInput = form.querySelector('#appointment-notes');
-      const text = (textInput.value || '').trim();
+      var dateInput = form.querySelector('#appointment-date');
+      var timeInput = form.querySelector('#appointment-time');
+      var textInput = form.querySelector('#appointment-text');
+      var notesInput = form.querySelector('#appointment-notes');
+      var text = (textInput.value || '').trim();
       if (!text) {
         textInput.focus();
         return;
       }
-      const apt = {
-        id: nextId(),
+      var apt = {
         date: dateInput.value,
         time: (timeInput.value || '').trim() || null,
         text: text,
         notes: (notesInput.value || '').trim() || null,
         done: false
       };
-      appointments.push(apt);
-      saveAppointments();
-      renderList();
-      textInput.value = '';
-      notesInput.value = '';
-      timeInput.value = '';
-      setDefaultDate();
-      textInput.focus();
+
+      if (useFirestore()) {
+        var payload = {
+          userId: window.firebaseAuth.currentUser.uid,
+          date: apt.date,
+          time: apt.time,
+          text: apt.text,
+          notes: apt.notes,
+          done: false
+        };
+        window.firebaseDb.collection(FIRESTORE_COLLECTION).add(payload).then(function (ref) {
+          apt.id = ref.id;
+          appointments.push(apt);
+          renderList();
+          textInput.value = '';
+          notesInput.value = '';
+          timeInput.value = '';
+          setDefaultDate();
+          textInput.focus();
+        }).catch(function (err) {
+          console.warn('Errore aggiunta Firestore:', err);
+          apt.id = nextId();
+          appointments.push(apt);
+          saveAppointments();
+          renderList();
+          textInput.value = '';
+          notesInput.value = '';
+          timeInput.value = '';
+          setDefaultDate();
+          textInput.focus();
+        });
+      } else {
+        apt.id = nextId();
+        appointments.push(apt);
+        saveAppointments();
+        renderList();
+        textInput.value = '';
+        notesInput.value = '';
+        timeInput.value = '';
+        setDefaultDate();
+        textInput.focus();
+      }
     });
   }
 
   /**
-   * Avvio: orologio, evidenziazione giorno, caricamento e render.
+   * Avvio: orologio, evidenziazione giorno, caricamento (Firestore o localStorage) e render.
    */
   function init() {
     updateClock();
     setInterval(updateClock, 1000);
     highlightCurrentDay();
     setInterval(highlightCurrentDay, 60000);
-    loadAppointments();
-    renderList();
-    initForm();
+
+    var done = function () {
+      renderList();
+      initForm();
+    };
+
+    if (window.firebaseReady) {
+      window.firebaseReady.then(function () {
+        if (useFirestore()) {
+          return loadAppointmentsFromFirestore().then(done);
+        }
+        loadAppointments();
+        done();
+      }).catch(function () {
+        loadAppointments();
+        done();
+      });
+    } else {
+      loadAppointments();
+      done();
+    }
   }
 
   init();
