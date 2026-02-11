@@ -4,10 +4,15 @@ App statica (HTML, CSS, JS) per gestire impegni. Persistenza: **Firestore** (se 
 
 ## Firebase / Firestore (persistenza cloud)
 
-⚠️ **Agenda condivisa**: tutti i dispositivi che accedono al sito vedono e possono modificare gli stessi impegni.
+✅ **Login automatico**: l'app fa login con l'account configurato (email/password in `firebase-config.js`).
 
-1. **Authentication → Sign-in method**: abilita **Anonymous**.
-2. **Firestore Database → Regole**: usa queste regole per permettere l'accesso condiviso:
+⚠️ **Agenda condivisa**: tutti i dispositivi con lo stesso account vedono e modificano gli stessi impegni.
+
+### Configurazione Firebase Console
+
+1. **Authentication → Sign-in method**: abilita **Email/Password**.
+2. **Authentication → Users**: crea un utente con email `ivansantantonio.workspace@gmail.com` (o quello che hai configurato in `firebase-config.js`).
+3. **Firestore Database → Regole**: usa queste regole per permettere l'accesso agli utenti autenticati:
 
 ```
 rules_version = '2';
@@ -20,9 +25,7 @@ service cloud.firestore {
 }
 ```
 
-**Importante**: Queste regole permettono a chiunque (con auth anonima) di leggere e modificare gli impegni. L'app è pensata per uso personale/privato.
-
-Se Firebase non è configurato o la auth anonima fallisce, l'app usa solo **localStorage** (nessun errore, stesso comportamento).
+Se Firebase non è configurato o il login fallisce, l'app usa solo **localStorage** (nessun errore, stesso comportamento).
 
 ## Deploy su Vercel (obbligatorio)
 
